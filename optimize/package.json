@@ -1,0 +1,23 @@
+{
+  "name": "scipy-optimize",
+  "version": "0.1.0",
+  "description": "Node wrapper around optimize module of scipy python library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acjones617/scipy-node/optimize"
+  },
+  "keywords": [
+    "scipy",
+    "python",
+    "optimize",
+    "functions",
+    "scalar",
+    "math"
+  ],
+  "author": "Andrew Jones",
+  "license": "MIT"
+}
