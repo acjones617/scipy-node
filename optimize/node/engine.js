@@ -1,48 +1,24 @@
 var parse = require('./parse');
+var clean = require('./clean');
 
 module.exports = Engine = {};
 
-Engine.runPython = function(method, func, options, cb) {
-  var python = require('child_process').spawn(
-    'python',
-    [__dirname + '/../lib/exec.py', method, func, options]);
-  output = '';
-  python.stdout.on('data', function(data){
-    output += data;
-  });
-  python.stdout.on('close', function(){
-    cb(JSON.parse(output));
-  });
-}
+Engine.runPython = function(operation, func, options, cb) {
+  var cleanup = clean.clean(options, cb);
+  options = cleanup.options;
+  cb = cleanup.callback;
 
-Engine.minimize = function(func, options, cb){
-  if (typeof options === 'function') {
-    cb = options;
-    options = undefined;
-  }
-
-  cb = cb || function (results){
-    console.log(results);
-  };
-
-  options           = options             || {};
-  options.guess     = options.guess       || -2;
-  options.operation = options.operation   || 'minimize';
-  
-  // func = parse.parseJS(func);
   options = JSON.stringify(options);
 
   var python = require('child_process').spawn(
     'python',
-    [__dirname + '/../py/exec.py', func, options]);
+    [__dirname + '/../py/exec.py', operation, func, options]);
   output = '';
   python.stdout.on('data', function(data){
     output += data;
   });
   python.stdout.on('close', function(){
-    // cb(JSON.parse(output));
-    cb(output);
+    // cb(output);
+    cb(JSON.parse(output));
   });
-};
-
-module.exports = Engine;
+}
