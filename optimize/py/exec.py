@@ -25,10 +25,3 @@ if operation == 'minimize':
     results = m.minimize_scalar(func, options)
 
 print json.JSONEncoder().encode(results)
-
-
-# 7. send back to node - need to convert cluster centers to list first
-# print j.encode({
-#     'finalMatrix'   : final_matrix,
-#     'clusterCenters': cluster_centers
-# })
