@@ -3,22 +3,32 @@ var clean = require('./clean');
 
 module.exports = Engine = {};
 
+var pythons = {};
+var outputs = {};
+var pythonNum = 0;
+
 Engine.runPython = function(operation, func, options, cb) {
-  var cleanup = clean.clean(options, cb);
+  var cleanup = clean.clean(func, options, cb);
+  func    = cleanup.func;
   options = cleanup.options;
-  cb = cleanup.callback;
+  cb      = cleanup.callback;
 
   options = JSON.stringify(options);
 
-  var python = require('child_process').spawn(
-    'python',
-    [__dirname + '/../py/exec.py', operation, func, options]);
-  output = '';
-  python.stdout.on('data', function(data){
-    output += data;
-  });
-  python.stdout.on('close', function(){
-    // cb(output);
-    cb(JSON.parse(output));
-  });
+  // immediately invoked function in case user invokes runPython multiple times,
+  // starting multiple child processes, causing race condition, 
+  // causing stdouts to potentially overlap.
+  (function (num){
+    pythons[num] = require('child_process').spawn(
+      'python',
+      [__dirname + '/../py/exec.py', operation, func, options]);
+    outputs[num] = '';
+    pythons[num].stdout.on('data', function(data){
+      outputs[num] += data;
+    });
+    pythons[num].stdout.on('close', function(){
+      // cb(outputs[num]);
+      cb(JSON.parse(outputs[num]));
+    });
+  })(pythonNum++)
 }
