@@ -1,17 +1,18 @@
 import main as m
 
-import jsonpickle as j
+import json
 import argparse
 import ast
 
 parser = argparse.ArgumentParser()
+parser.add_argument('operation')
 parser.add_argument('func')
 parser.add_argument('options')
 args   = parser.parse_args()
+operation = args.operation
+func      = args.func
 
-func = args.func
-options = ast.literal_eval(args.options)
-operation = options['operation']
+options   = json.JSONDecoder().decode(args.options)
 
 def f(func):
     def inner(x):
@@ -21,10 +22,9 @@ def f(func):
 func = f(func)
 
 if operation == 'minimize':
-    result = m.minimize_scalar(func)
+    results = m.minimize_scalar(func, options)
 
-
-print j.encode(result)
+print json.JSONEncoder().encode(results)
 
 
 # 7. send back to node - need to convert cluster centers to list first
