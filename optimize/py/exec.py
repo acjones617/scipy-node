@@ -1,4 +1,5 @@
 import main as m
+from sympy.utilities.lambdify import lambdify
 
 import json
 import argparse
@@ -14,14 +15,14 @@ func      = args.func
 
 options   = json.JSONDecoder().decode(args.options)
 
-def f(func):
-    def inner(x):
-        return eval(func)
-    return inner
+# def f(func):
+#     def inner(x):
+#         return eval(func)
+#     return inner
 
-func = f(func)
+# func = f(func)
 
 if operation == 'minimize':
-    results = m.minimize_scalar(func, options)
+    results = m.minimize_scalar(lambdify('x', func), options)
 
 print json.JSONEncoder().encode(results)
