@@ -46,20 +46,18 @@ var cleanFunc = function (func, newVarName){
 }
 
 module.exports = {
-  clean: function (func, options, callback) {
+  cleanMin: function (func, options, callback) {
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
     }
 
-    callback = callback || function (results){
-      console.log(results);
-    };
+    this.cleanCB(callback);
 
     options = options || {};
 
     func = cleanFunc(func, options.variable);
-  console.log(func);
+    // console.log(func);
 
     options = {
       bracket: null,
@@ -83,5 +81,11 @@ module.exports = {
       options:  options,
       callback: callback
     }
+  },
+
+  cleanCB: function(callback) {
+    return callback || function (results){
+      console.log(results);
+    };
   }
 }
