@@ -7,13 +7,18 @@ var pythons = {};
 var outputs = {};
 var pythonNum = 0;
 
-Engine.runPython = function(operation, func, options, cb) {
-  var cleanup = clean.clean(func, options, cb);
-  func    = cleanup.func;
-  options = cleanup.options;
-  cb      = cleanup.callback;
-
-  options = JSON.stringify(options);
+Engine.runPython = function(operation, a, b, cb) {
+  if (operation === 'minimize') {
+    var cleanup = clean.cleanMin(a, b, cb);
+    a   = cleanup.func;
+    b   = cleanup.options;
+    cb  = cleanup.callback;
+    b = JSON.stringify(b);
+  } else if (operation === 'nnls') {
+    cb = clean.cleanCB(cb);
+    a = JSON.stringify(a);
+    b = JSON.stringify(b);
+  }
 
   // immediately invoked function in case user invokes runPython multiple times,
   // starting multiple child processes, causing race condition, 
@@ -21,7 +26,7 @@ Engine.runPython = function(operation, func, options, cb) {
   (function (num){
     pythons[num] = require('child_process').spawn(
       'python',
-      [__dirname + '/../py/exec.py', operation, func, options]);
+      [__dirname + '/../py/exec.py', operation, a, b]);
     outputs[num] = '';
     pythons[num].stdout.on('data', function(data){
       outputs[num] += data;
