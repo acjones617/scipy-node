@@ -3,10 +3,12 @@
 ## <a name='contents' href='#'/> Contents
 
 [What is scipy's optimize package?](#about)  
-[Setup Process](#setup)
-[API](#use)
+[Setup Process](#setup)  
+[API](#use)  
+[minimize](#min)  
+[Least Squares](#nnls)  
 
-## <a name='about' href='#'/>  What is scipy's optimize package?
+## <a name='about' href='#about'/>  What is scipy's optimize package?
 
 Scipy is an extensively used, well-documented Python library for all your scientific needs. Optimize is a module of the library concerned with optimization of functions. This is a node wrapper for which you can use JavaScript to access the power of the optimize module. It exists on the npm registry under the name "scipy-optimize". The code can be seen at my <a href='https://github.com/acjones617/scipy/optimize'>scipy/optimize</a> github repo. A demo application is forthcoming.
     
@@ -14,13 +16,13 @@ Scipy is an extensively used, well-documented Python library for all your scient
 
 Using the node.js command line interface, the underlying python engine is launched as a child process, with the results streamed to node. These results are divided into various variables based on the type of data they hold, and a user can gain access to all this raw analysis.
 
-## <a name='setup' href='#'/> Setup Process
+## <a name='setup' href='#setup'/> Setup Process
 
 To utilize the Product-Recommender NPM module, the first step would be to make sure one has successfully installed node.js, npm, and a python version of >= 2.7.  To install these items, I would recommend you check out http://nodejs.org/download/ and https://www.python.org/download/.
 
 In addition to these prerequisites, you will need to install scipy and sympy. For installation instructions on scipy, please go to http://www.scipy.org/install.html. For installation instructions on sympy, please go to http://docs.sympy.org/dev/install.html. Some other python modules used in this project are argparse, ast, and json, though these should be included in the Python Standard Library so there is likely no need to download these.
 
-## <a name='use' href='#'/> API
+## <a name='use' href='#use'/> API
 
 To use my scipy-optimize algorithm, first install k-means:
 
@@ -32,7 +34,7 @@ Then, require scipy-optimize in your js file. I'm going to use the variable 'opt
 
 opt is an object with many of the SciPy Optimization methods (and the rest to hopefully soon follow). Currently, the methods on opt are:
 
-## minimize
+## <a name='min' href='#min'/> minimize
 
 opt.minimize(func, options, callback) takes three arguments: 
 
@@ -80,3 +82,43 @@ The results of the minimization will be passed to a provided callback function. 
 The passed-in results object contains two important pieces of data: fun and x.
 
 x is the value of x which minimizes the function. fun is the value of the function at that value of x (the minimum value of the function)
+
+## <a name='nnls' href='#nnls'/> nonNegLeastSquares
+
+Minimize the Euclidean norm of Ax - b for x >= 0 where A is a matrix, and b is a vector
+
+opt.nonNegLeastSquares(A, b) takes three arguments:
+
+### A:
+
+A is a matrix, represented in JavaScript as a two-dimensional array. For example:
+
+    A = [[1, 2, 3],
+         [4, 5, 6],
+         [7, 8, 9]];
+
+The above A would represent a 3x3 matrix
+
+### b:
+
+b is a vector of response variables, represented in JavaScript as a one-dimesional array. For example:
+
+    b = [-5, -3, -1];
+
+The above b would represent a 3x1 vector.
+
+Note that the number of rows of A (A.length) must exactly equal the length of the b-vector (b.length). The solution, x, will be a column-vector of length equal to the number of columns of A (A[0].length).
+
+### callback (optional)
+
+The results of the minimization will be passed to a provided callback function. The default is:
+
+    var callback = function (results){
+      console.log(results)
+    }
+
+The passed-in results object contains two important pieces of data: solution and residual.
+
+solution is an n-length solution vector equal to x that minimizes the Euclidean norm of Ax - b (for x >= 0), where n is the number of columns of A, or A[0].length.
+
+residual is the minimum value found for the Euclidean norm of Ax - b, with x = solution.
