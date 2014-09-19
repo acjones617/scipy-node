@@ -2,11 +2,11 @@
 
 ## <a name='contents' href='#'/> Contents
 
-[What is scipy's optimize package?](#about)  
-[Setup Process](#setup)  
-[API](#use)  
-[minimize](#min)  
-[Least Squares](#nnls)  
+[What is scipy's optimize package?](https://github.com/acjones617/scipy-node/tree/master/optimize#about)  
+[Setup Process](https://github.com/acjones617/scipy-node/tree/master/optimize#setup)  
+[API](https://github.com/acjones617/scipy-node/tree/master/optimize#use)  
+[minimize](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
+[Least Squares](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)  
 
 ## <a name='about' href='#about'/>  What is scipy's optimize package?
 
@@ -38,7 +38,7 @@ opt is an object with many of the SciPy Optimization methods (and the rest to ho
 
 opt.minimize(func, options, callback) takes three arguments: 
 
-### func (required)
+#### func (required)
 
 This should be a string representing the mathematical function we are interested in finding the min point. You must use "x" as the independent variable, unless otherwise specified in the options object. Currently, this library only supports scalar, univariate functions. When writing the function, you can use any normal JavaScript operators, such as your typical +, -, *, and /. You can use any of the methods or properties in the JavaScript "Math" object - abs, exp, log, sin, etc. You do not need to include the "Math." part of the expression when adding it to your function. Your true range of possible operations is much greater. For example, while the JavaScript Math.log(x) by default is the natural logarithm, base e, you can compute the logarithm of any base with "log(x, base)." For example, log(x, 10) would be the logarithm of x, base 10. Please check the SymPy lambdify documentation for what it will take as an "expression" for more information.
 
@@ -62,7 +62,7 @@ Passing in either of the above two examples - func as a string and func as a fun
     }
 
 
-### options (optional)
+#### options (optional)
 
 Here, you can customize how you want your minimization to run. Our options object can take two properties:
 
@@ -71,7 +71,7 @@ Here, you can customize how you want your minimization to run. Our options objec
       variable: 'y' // can specify the variable name used in your func, as a string. You must specify this variable name if you are using something other than "x"
     }
 
-### callback (optional)
+#### callback (optional)
 
 The results of the minimization will be passed to a provided callback function. The default is:
 
@@ -89,7 +89,7 @@ Minimize the Euclidean norm of Ax - b for x >= 0 where A is a matrix, and b is a
 
 opt.nonNegLeastSquares(A, b) takes three arguments:
 
-### A:
+#### A:
 
 A is a matrix, represented in JavaScript as a two-dimensional array. For example:
 
@@ -99,7 +99,7 @@ A is a matrix, represented in JavaScript as a two-dimensional array. For example
 
 The above A would represent a 3x3 matrix
 
-### b:
+#### b:
 
 b is a vector of response variables, represented in JavaScript as a one-dimesional array. For example:
 
@@ -109,7 +109,7 @@ The above b would represent a 3x1 vector.
 
 Note that the number of rows of A (A.length) must exactly equal the length of the b-vector (b.length). The solution, x, will be a column-vector of length equal to the number of columns of A (A[0].length).
 
-### callback (optional)
+#### callback (optional)
 
 The results of the minimization will be passed to a provided callback function. The default is:
 
