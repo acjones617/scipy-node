@@ -1,6 +1,6 @@
 {
   "name": "scipy-optimize",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Node wrapper around optimize module of scipy python library",
   "main": "index.js",
   "scripts": {
@@ -19,5 +19,12 @@
     "math"
   ],
   "author": "Andrew Jones",
-  "license": "MIT"
+  "license": [ {
+    "type": "MIT",
+    "url": "http://fibo.mit-license.org/"
+  } ],
+  "bugs": {
+    "url": "https://github.com/acjones617/k-means/issues"
+  },
+  "homepage": "https://github.com/acjones617/k-means"
 }
