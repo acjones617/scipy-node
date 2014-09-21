@@ -5,7 +5,7 @@
 [What is scipy's optimize package?](https://github.com/acjones617/scipy-node/tree/master/optimize#about)  
 [Setup Process](https://github.com/acjones617/scipy-node/tree/master/optimize#setup)  
 [API](https://github.com/acjones617/scipy-node/tree/master/optimize#use)  
-[minimize](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
+[Find Minimum Value of a Mathematical Expression](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
 [Least Squares](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)  
 
 ## <a name='about' href='#about'/>  What is scipy's optimize package?
@@ -34,41 +34,65 @@ Then, require scipy-optimize in your js file. I'm going to use the variable 'opt
 
 opt is an object with many of the SciPy Optimization methods (and the rest to hopefully soon follow). Currently, the methods on opt are:
 
-## <a name='min' href='#min'/> minimize
+## <a name='min' href='#min'/> Find Minimum Value of a Univariate Mathematical Expression
 
-opt.minimize(func, options, callback) takes three arguments: 
+Two functions are available: opt.localMinimize(func, options, callback) and opt.globalMinimize(func, options, callback), in case your expression may have many local minima and you want to ensure that you're finding the global minimum.
+
+Both opt.localMinimize(func, options, callback) and opt.globalMinimize(func, options, callback) take three arguments: 
 
 #### func (required)
 
-This should be a string representing the mathematical function we are interested in finding the min point. You must use "x" as the independent variable, unless otherwise specified in the options object. Currently, this library only supports scalar, univariate functions. When writing the function, you can use any normal JavaScript operators, such as your typical +, -, *, and /. You can use any of the methods or properties in the JavaScript "Math" object - abs, exp, log, sin, etc. You do not need to include the "Math." part of the expression when adding it to your function. Your true range of possible operations is much greater. For example, while the JavaScript Math.log(x) by default is the natural logarithm, base e, you can compute the logarithm of any base with "log(x, base)." For example, log(x, 10) would be the logarithm of x, base 10. Please check the SymPy lambdify documentation for what it will take as an "expression" for more information.
+Func represents the mathematical expression you want to optimize. It can be one of two things:
 
-Example:
+Func can be a function that takes a single argument. Make sure that the entire mathematical expression follows the "return" statement. For example, the following <b>IS</b> a valid function to pass to func:
+
+    func = function (x){
+      return Math.pow(x - 10, 4) + Math.log(Math.abs(x + 1)) - 10 * x;
+    };
+    // this is equivalent to f(x) = (x - 10)^4 + log(|x+1|) - 10 * x
+    // minimizes to around -107.66 when x is around 11.35
+
+
+However, the following is <b>NOT</b> a valid function to pass to func, both because it takes multiple arguments, and because it conducts relevant operations outside of the specific "return" statement:
+
+    func = function (x, y){
+      var res = x * y;
+      res = Math.pow(res - 10, 4);
+      return res;
+    };
+
+Func can also be a string representing the expression. You must use "x" as the independent variable, unless otherwise specified in the options object (see below). Func could be:
+
+    func = 'Math.pow(x - 10, 4) + Math.log(Math.abs(x + 1)) - 10 * x';
+
+Your true range of possible operations is much greater than merely what is found in the JavaScript Math object. For example, while the JavaScript Math.log(x) by default is the natural logarithm, base e, you can compute the logarithm of any base with "log(x, base)." For example, log(x, 10) would be the logarithm of x, base 10. Please check the SymPy lambdify documentation for what it will take as an "expression" for more information.
+
+For example, you could write func without the Math. object entirely, like below:
 
     func = 'pow((x-10),4) - 5 * x + 3'
     // this is equivalent to f(x) = (x-10)^4 - 5x + 3
     // minimizes to around -51.04 when x is around 11.07
 
-Additionally, you can input a function as the "func" argument, but it needs to adhere to some strict constraints. It must be of the type:
-
-    var func = function(x) {
-      return Math.pow((x-10), 4) - (5 * x) + 3;
-    }
-
-Passing in either of the above two examples - func as a string and func as a function, will lead to an identical result. You must still use x as the variable name, unless otherwise specified in the options object. You must keep the entirety of your mathematical function expression next to your "return" statement. i.e. the following example would <b>not</b> work:
-
-    var func = function(x) {
-      var temp = 5 * x;
-      return Math.pow((x-10), 4) - temp + 3;
-    }
-
-
 #### options (optional)
 
-Here, you can customize how you want your minimization to run. Our options object can take two properties:
+Here, you can customize how you want your minimization to run. 
+
+When calling opt.localMinimization, our options object can take two properties:
 
     var options = {
-      bounds: [5, 10] // can specify a two-element array corresponding to the optimization bounds. If we wanted to find the min point between x = 5 and x = 10, we would set bounds: [5, 10].
-      variable: 'y' // can specify the variable name used in your func, as a string. You must specify this variable name if you are using something other than "x"
+      bounds:   [5, 10] // can specify a two-element array corresponding to the optimization bounds. If we wanted to find the min point between x = 5 and x = 10, we would set bounds: [5, 10].
+      variable: 'y' // can specify the variable name used in your func when you pass func in as a string. You must specify this variable name if you are using something other than "x"
+    }
+
+When calling opt.globalMinimization, our options object can take seven properties:
+
+    var options = {
+      guess:               0 // can specify an initial guess for x to minimize our expression. Default is 0.
+      iterations:          100 // can specify the number of iterations we want the algorithm to run. This is the number of different local minima the algorithm will find before deciding on the global minimum. Default is 100.
+      temperature:         1.0 // Defines the accept or reject criterion. Higher "temperatures" mean that larger jumps in function value will be accepted. For best results, temperature should be comparable to the separation (in function value) between local minima. Default is 1.0.
+      stepSize:            0.5 // Initial step size for use in the random displacement. Default is 0.5.
+      includeAllMinsFound: false // Whether or not all local minima will be included in the passed back results array. Default is false.
+      variable:            'y' // can specify the variable name used in your func when you pass func in as a string. You must specify this variable name if you are using something other than "x"
     }
 
 #### callback (optional)
@@ -79,9 +103,9 @@ The results of the minimization will be passed to a provided callback function. 
       console.log(results)
     }
 
-The passed-in results object contains two important pieces of data: fun and x.
+The passed-in results object contains two important pieces of data: fun and x. "x" is the value of x which minimizes the function. "fun" is the value of the function at that value of x (the minimum value of the function). 
 
-x is the value of x which minimizes the function. fun is the value of the function at that value of x (the minimum value of the function)
+For the opt.globalMinimization function, if you specified "true" for includeAllMinsFound in the options object, the results object contains the array of all local minima found in an additional property named "allMins".
 
 ## <a name='nnls' href='#nnls'/> nonNegLeastSquares
 
