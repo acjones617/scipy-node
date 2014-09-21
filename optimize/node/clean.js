@@ -1,9 +1,10 @@
-var defaults = {
-  bracket: null,
-  bounds: null,
-  method: 'Brent',
-  tol: null,
-  options: null
+var globalDefaults = {
+  guess:               0,
+  iterations:          100,
+  temperature:         1.0,
+  stepSize:            0.5,
+  includeAllMinsFound: false,
+  interval:            50
 };
 
 var extendNoOverwrite = function (obj, defaults){
@@ -15,65 +16,75 @@ var extendNoOverwrite = function (obj, defaults){
 }
 
 var extractFunc = function (func) {
+  // if function given is a function,
+  // extract the argument name, extract the return value,
+  // replace the argument name with 'x'
+  // return the return value as a string, with x as the independent variable
   func = func.toString();
-  func = func.match(/return[\s\S]*}/)[0];
-  func = func.replace(/return/, '');
-  func = func.replace(/[{};\n\r]/g, '');
+  var arg = func.match(/^function\s*[^\(]*\(\s*([^\)\,]*)[\,\)]/m)[1];
+  var regex = new RegExp('\\b' + arg + '\\b', 'g')
+  func = func.replace(regex, 'x');
+  func = func.match(/return\s*([^\;}]*)[\;}]/m)[1];
+  // func = func.replace(/Math./g, '');
   return func;
 }
 
 var cleanFunc = function (func, newVarName){
   if (typeof func === 'function') {
     func = extractFunc(func);
+  } else if (typeof func === 'string') {
+    if (newVarName && typeof newVarName === 'string') {
+      var regex = new RegExp('\\b' + newVarName + '\\b', 'g');
+      func = func.replace(regex, 'x');
+    }
+  } else {
+    throw 'function to be optimized needs to be a function or a string expression';
   }
 
-  if (newVarName && typeof newVarName === 'string') {
-    var regex = new RegExp('\\b' + newVarName + '\\b', 'g');
-    func = func.replace(regex, 'x');
-  }
-
+  func = func.replace(/Math./gi,'');
+  func = func.replace(/LN2/gi, 'ln(2)');
+  func = func.replace(/LN10/gi, 'ln(10)');
+  func = func.replace(/LOG2E/gi, 'log(e,2)');
+  func = func.replace(/LOG10E/gi, 'log(e,10)');
+  func = func.replace(/SQRT1_2/gi, 'sqrt(1/2)');
+  func = func.replace(/SQRT2/gi, 'sqrt(2)');
   func = func.toLowerCase();
-  func = func.replace(/Math./g,'');
-  func = func.replace(/LN2/g, 'ln(2)');
-  func = func.replace(/LN10/g, 'ln(10)');
-  func = func.replace(/LOG2E/g, 'log(e,2)');
-  func = func.replace(/LOG10E/g, 'log(e,10)');
-  func = func.replace(/SQRT1_2/g, 'sqrt(1/2)');
-  func = func.replace(/SQRT2/g, 'sqrt(2)');
-
 
   return func;
 }
 
 module.exports = {
-  cleanMin: function (func, options, callback) {
+  cleanMin: function (operation, func, options, callback) {
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
     }
-
-    this.cleanCB(callback);
+    // provide default callback function (console.log)
+    callback = this.cleanCB(callback);
 
     options = options || {};
 
+    // clean provided function to be accepted by sympy lambdify function
     func = cleanFunc(func, options.variable);
-    // console.log(func);
 
-    options = {
-      bracket: null,
-      method: 'Brent',
-      bounds: options.bounds,
-      tol: null,
-      options: null
-    }
+    // provide sensible defaults for the options object
+    if (operation === 'local') {
+      options = {
+        bracket: null,
+        method: 'Brent',
+        bounds: options.bounds,
+        tol: null,
+        options: null
+      }
 
-    // extendNoOverwrite(options, defaults);
-
-    if (Array.isArray(options.bounds) && options.bounds.length === 2) {
-      options.method = 'Bounded';
-    } else {
-      options.bounds = null;
-      options.method = 'Brent';
+      if (Array.isArray(options.bounds) && options.bounds.length === 2) {
+        options.method = 'Bounded';
+      } else {
+        options.bounds = null;
+        options.method = 'Brent';
+      }
+    } else if (operation === 'global') {
+      extendNoOverwrite(options, globalDefaults);
     }
 
     return {
