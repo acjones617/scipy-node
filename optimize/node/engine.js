@@ -3,13 +3,13 @@ var clean = require('./clean');
 
 module.exports = Engine = {};
 
-var pythons = {};
-var outputs = {};
+var pythons = [];
+var outputs = [];
 var pythonNum = 0;
 
 Engine.runPython = function(operation, a, b, cb) {
-  if (operation === 'minimize') {
-    var cleanup = clean.cleanMin(a, b, cb);
+  if (operation === 'local' || operation === 'global') {
+    var cleanup = clean.cleanMin(operation, a, b, cb);
     a   = cleanup.func;
     b   = cleanup.options;
     cb  = cleanup.callback;
