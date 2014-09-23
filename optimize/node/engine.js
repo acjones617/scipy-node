@@ -7,7 +7,7 @@ var pythons = [];
 var outputs = [];
 var pythonNum = 0;
 
-Engine.runPython = function(operation, a, b, cb, xData, yData) {
+Engine.runPython = function(operation, a, b, cb, x, y) {
   if (operation === 'local' || operation === 'global') {
     var cleanup = clean.cleanMin(operation, a, b, cb);
     a   = cleanup.func;
@@ -19,7 +19,13 @@ Engine.runPython = function(operation, a, b, cb, xData, yData) {
     a = JSON.stringify(a);
     b = JSON.stringify(b);
   } else if (operation === 'fit') {
-    var cleanup = clean.cleanFit(a, b, cb, xData, yData);
+    var cleanup = clean.cleanFit(a, b, cb, x, y);
+    a = cleanup.func;
+    b = cleanup.options;
+    cb = cleanup.callback;
+    b = JSON.stringify(b);
+  } else if (operation === 'root') {
+    var cleanup = clean.cleanRoot(a, b, cb, x, y);
     a = cleanup.func;
     b = cleanup.options;
     cb = cleanup.callback;
@@ -38,8 +44,8 @@ Engine.runPython = function(operation, a, b, cb, xData, yData) {
       outputs[num] += data;
     });
     pythons[num].stdout.on('close', function(){
-      // cb(outputs[num]);
-      cb(JSON.parse(outputs[num]));
+      cb(outputs[num]);
+      // cb(JSON.parse(outputs[num]));
     });
   })(pythonNum++)
 }
