@@ -12,6 +12,9 @@ var index = module.exports = {
   },
   fitCurve: function(func, xData, yData, options, callback) {
     eng.runPython('fit', func, options, callback, xData, yData);
+  },
+  findRoot: function(func, lower, upper, options, callback) {
+    eng.runPython('root', func, options, callback, lower, upper);
   }
 };
 
