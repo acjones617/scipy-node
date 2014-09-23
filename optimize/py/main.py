@@ -1,5 +1,13 @@
-from scipy import optimize as o
-import numpy as np
+try:
+    from scipy import optimize as o
+except:
+    print 'Unable to find scipy library. Make sure you have downloaded scipy. See http://www.scipy.org/install.html'
+
+try:
+    import numpy as np
+except:
+    print 'Unable to find numpy library. Make sure you have downloaded numpy. See http://www.numpy.org/'
+
 import clean as c
 
 def local_minimize(func, options):
@@ -38,6 +46,20 @@ def global_minimize(func, options):
         return answer
     except Exception as e:
         return str(e)
+
+def find_root(func, options):
+    lower  = options['lower']
+    upper  = options['upper']
+    method = options['method']
+
+    if method not in ['brenth', 'ridder', 'bisect']:
+        method = 'brentq'
+
+    try:
+        return getattr(o,method)(func, a=lower, b=upper)
+    except Exception as e:
+        return str(e)
+
 
 def curve_fit(func, options):
     xdata = options['xData']
