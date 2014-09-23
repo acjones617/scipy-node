@@ -5,8 +5,10 @@
 [What is scipy's optimize package?](https://github.com/acjones617/scipy-node/tree/master/optimize#about)  
 [Setup Process](https://github.com/acjones617/scipy-node/tree/master/optimize#setup)  
 [API](https://github.com/acjones617/scipy-node/tree/master/optimize#use)  
+[The appropriate format for the "func" argument](https://github.com/acjones617/scipy-node/tree/master/optimize#func)  
 [Find Minimum Value of a Mathematical Expression](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
-[Find the best-fit curve given data](https://github.com/acjones617/scipy-node/tree/master/fit#min)  
+[Find the Root of a Function](https://github.com/acjones617/scipy-node/tree/master/optimize#root)  
+[Find the best-fit curve given data](https://github.com/acjones617/scipy-node/tree/master/optimize#fit)  
 [Least Squares](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)  
 
 ## <a name='about' href='#about'/>  What is scipy's optimize package?
@@ -35,24 +37,26 @@ Then, require scipy-optimize in your js file. I'm going to use the variable 'opt
 
 opt is an object with many of the SciPy Optimization methods (and the rest to hopefully soon follow). Currently, the methods on opt are:
 
-## <a name='min' href='#min'/> Find Minimum Value of a Univariate Mathematical Expression
+<b>
+[opt.localMinimize(func[, options[, callback]]) and opt.globalMinimize(func[, options[, callback]])](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
+[opt.findRoot(func, lower, upper[, options[, callback]])](https://github.com/acjones617/scipy-node/tree/master/optimize#root)
+[opt.fitCurve.linear(xData, yData[, callback]), opt.fitCurve.quadratic(xData, yData[, callback]), and opt.fitCurve(func, xData, yData[, options[, callback]])](https://github.com/acjones617/scipy-node/tree/master/optimize#fit)
+[opt.nonNegLeastSquares(A, b[, callback])](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)
+</b>
 
-Two functions are available: opt.localMinimize(func, options, callback) and opt.globalMinimize(func, options, callback), in case your expression may have many local minima and you want to ensure that you're finding the global minimum.
+Many of these require the user to pass in a "func" argument to optimize. Func requires a very specific format:
 
-Both opt.localMinimize(func, options, callback) and opt.globalMinimize(func, options, callback) take three arguments: 
-
-#### func (required)
+## <a name='func' href='#func'/> Appropriate format for "func"
 
 Func represents the mathematical expression you want to optimize. It can be one of two things:
 
-Func can be a function that takes a single argument. Make sure that the entire mathematical expression follows the "return" statement. For example, the following <b>IS</b> a valid function to pass to func:
+For all but fitCurve, func can be a function that takes a single argument. Make sure that the entire mathematical expression follows the "return" statement. For example, the following <b>IS</b> a valid function to pass to func:
 
     func = function (x){
       return Math.pow(x - 10, 4) + Math.log(Math.abs(x + 1)) - 10 * x;
     };
     // this is equivalent to f(x) = (x - 10)^4 + log(|x+1|) - 10 * x
     // minimizes to around -107.66 when x is around 11.35
-
 
 However, the following is <b>NOT</b> a valid function to pass to func, both because it takes multiple arguments, and because it conducts relevant operations outside of the specific "return" statement:
 
@@ -62,9 +66,27 @@ However, the following is <b>NOT</b> a valid function to pass to func, both beca
       return res;
     };
 
-Func can also be a string representing the expression. You must use "x" as the independent variable, unless otherwise specified in the options object (see below). Func could be:
+For fitCurve, func can take multiple arguments. The first argument must be the independent variable, and the following arguments will be the parameters we are trying to fit. For example:
+
+    func = function(ind, param1, param2, param3) {
+      return param1 * pow(ind, 2) + param2 * ind + param3;
+    }
+
+Func can also be a string representing the expression. You must use "x" as the independent variable, unless otherwise specified in the options object. Func could be:
 
     func = 'Math.pow(x - 10, 4) + Math.log(Math.abs(x + 1)) - 10 * x';
+
+If we were to use a different independent variable, we would need to pass that information through the options argument, on the "variable" property. For example, if were to use "ind" as the independent variable, our options argument would at least need to be:
+
+    options = {
+      variable: 'ind'
+    }
+
+If we were to use a string to represent the expression for fitCurve, we need to pass an array with the variable names to the "variables" property on the options object. The first variable would be the independent variable, and the remaining would be the parameters. For example:
+
+    options = {
+      variables: ['ind', 'param1', 'param2', 'param3']
+    }
 
 Your true range of possible operations is much greater than merely what is found in the JavaScript Math object. For example, while the JavaScript Math.log(x) by default is the natural logarithm, base e, you can compute the logarithm of any base with "log(x, base)." For example, log(x, 10) would be the logarithm of x, base 10. Please check the SymPy lambdify documentation for what it will take as an "expression" for more information.
 
@@ -73,6 +95,17 @@ For example, you could write func without the Math. object entirely, like below:
     func = 'pow((x-10),4) - 5 * x + 3'
     // this is equivalent to f(x) = (x-10)^4 - 5x + 3
     // minimizes to around -51.04 when x is around 11.07
+
+
+## <a name='min' href='#min'/> Find Minimum Value of a Univariate Mathematical Expression
+
+Two functions are available: opt.localMinimize(func[, options[, callback]]) and opt.globalMinimize(func[, options[, callback]]), in case your expression may have many local minima and you want to ensure that you're finding the global minimum.
+
+Both opt.localMinimize and opt.globalMinimize take up to three arguments: 
+
+#### func (required)
+
+See above for details on how to [format func](https://github.com/acjones617/scipy-node/tree/master/optimize#func)
 
 #### options (optional)
 
@@ -108,13 +141,52 @@ The passed-in results object contains two important pieces of data: fun and x. "
 
 For the opt.globalMinimization function, if you specified "true" for includeAllMinsFound in the options object, the results object contains the array of all local minima found in an additional property named "allMins".
 
-## <a name='fit' href='#fit'/> fitCurve
+
+## <a name='root' href='#root'/> Find the Root of a Function (such that f(x) = 0)
+
+Using opt.findRoot, you have access to four different methods of finding the root of a function within a given interval, such that f(x) = 0.
+
+opt.findRoot(func, lower, upper [, options [, callback]]) takes up to five arguments:
+
+#### func (required):
+
+See above for details on how to [format func](https://github.com/acjones617/scipy-node/tree/master/optimize#func)
+
+#### lower (required):
+
+The lower bound value of x to search for a root.
+
+#### upper (required):
+
+The upper bound value of x to search for a root. <b>IMPORTANT:</b> If f(x) is the function we are searching for a root for, f(lower) and f(upper) must evaluate to opposite signs, even if there would have been a root in between them anwyay. In other words, if f(lower) > 0, then f(upper) must be < 0.
+
+#### options (optional):
+
+The options object can take up to two properties:
+
+    var options = {
+      method:    'brentq' // can specify the method you want scipy to run to find the root. If there are multiple roots between the specified intervals, different methods may find different roots. Valid methods are "brentq", "brenth", "ridder", or "bisect". Default is "brentq". See Root Finding -> Scalar Functions at http://docs.scipy.org/doc/scipy/reference/optimize.html for more details.
+      variable:  'y' // can specify the variable name used in your func when you pass func in as a string. You must specify this variable name if you are using something other than "x"
+    }
+
+#### callback (optional):
+
+The results of the minimization will be passed to a provided callback function. The default is:
+
+    var callback = function (results){
+      console.log(results)
+    }
+
+The passed-in results is a value of x found such that f(x) = 0.
+
+
+## <a name='fit' href='#fit'/> Find the best-fit curve to fit a given dataset
 
 opt.fitCurve uses non-linear least squares to fit a function, f, to given data. 
 
 There are two shortcut methods on the opt.fitCurve object that can be used: linear and quadratic, that just require the yData and xData.
 
-#### opt.fitCurve.linear(xData, yData, callback) and opt.fitCurve.quadratic(xData, yData, callback):
+#### opt.fitCurve.linear(xData, yData[, callback]) and opt.fitCurve.quadratic(xData, yData[, callback]):
 
 Fit data to either the linear function, y = ax + b, or the quadratic function, y = ax^2 + bx + c, where the data is represented by arrays xData and yData. fitCurve.linear and fitCurve.quadratic take three arguments:
 
@@ -160,34 +232,17 @@ Where a = 0.5, b = -1.1 and c = 4.0
 
 You can also provide any custom univariate function to fit the curve to via opt.fitCurve
 
-#### opt.fitCurve(func, xData, yData, options, callback) takes two more arguments in addition to what opt.fitCurve.linear and opt.fitCurve.quadratic took:
+#### opt.fitCurve(func, xData, yData[, options[, callback) takes two more arguments in addition to what opt.fitCurve.linear and opt.fitCurve.quadratic took:
 
 #### func:
 
-The custom function to fit xData and yData to. This can be a JavaScript function, with the same rules above, that the entire expression must be in the return statement:
+See above for details on how to [format func](https://github.com/acjones617/scipy-node/tree/master/optimize#func) Pay special attention to the additional details for fitCurve.
 
-    func = function(ind, param1, param2, param3) {
-      return param1 * pow(ind, 2) + param2 * ind + param3;
-    }
-
-The above example is exactly equal to if we called opt.fitCurve.quadratic. In our results object, the order of the parameters will be the same as the order of the parameters defined when we defined func above (i.e. param1, param2, param3).
-
-func could also be a string, with the same rules above. In this case, we need to define the name of the variables we are using as an array in our options object (see below). We could do the following:
-
-    func = 'param1 * ind + param2';
-
-And, in our options object, add a "variables" property:
-
-    options = {
-      variables: ['ind', 'param1', 'param2']
-    }
-
-The above is exactly equivalent to if we called opt.fitCurve.linear. In the variables array, the first string must be our independent variable. The remaining will be our parameters. The paramValues will be in the same order as we defined them in our variables array in our options object.
+In our results object, the order of the parameters will be the same as the order of the parameters defined when we defined func as a function, or as the order of the parameters in the "variables" property of the options object if we defined func as a string.
 
 #### options:
 
-The only option our options object takes is a variables array, in the case that our provided func is a string (see above).
-
+The only option our options object takes is a variables array, in the case that our provided func is a string. Remember to pass in variable names as strings to the array.
 
 ## <a name='nnls' href='#nnls'/> nonNegLeastSquares
 
