@@ -1,5 +1,8 @@
 import main as m
-from sympy.utilities.lambdify import lambdify
+try:
+    from sympy.utilities.lambdify import lambdify
+except:
+    print 'Unable to find sympy. Make sure you have downloaded sympy. See http://sympy.org/en/download.html'
 
 import json
 import argparse
@@ -11,13 +14,15 @@ parser.add_argument('b')
 args   = parser.parse_args()
 operation = args.operation
 
-if operation in ['local', 'global', 'fit']:
+if operation in ['local', 'global', 'fit', 'root']:
     func      = args.a
     options   = json.JSONDecoder().decode(args.b)
     if operation == 'local':
         results = m.local_minimize(lambdify('x', func), options)
     elif operation == 'global':
         results = m.global_minimize(lambdify('x', func), options)
+    elif operation == 'root':
+        results = m.find_root(lambdify('x', func), options)
     elif operation == 'fit':
         num_args = options['numArgs']
         args = ['x']
