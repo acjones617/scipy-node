@@ -15,27 +15,60 @@ var extendNoOverwrite = function (obj, defaults){
   }
 }
 
-var extractFunc = function (func) {
+var extractFunc = function (func, multipleParams) {
   // if function given is a function,
   // extract the argument name, extract the return value,
   // replace the argument name with 'x'
   // return the return value as a string, with x as the independent variable
   func = func.toString();
-  var arg = func.match(/^function\s*[^\(]*\(\s*([^\)\,]*)[\,\)]/m)[1];
-  var regex = new RegExp('\\b' + arg + '\\b', 'g')
-  func = func.replace(regex, 'x');
+  if (!multipleParams) {
+    var arg = func.match(/^function\s*[^\(]*\(\s*([^\)\,]*)[\,\)]/m)[1];
+    var regex = new RegExp('\\b' + arg.trim() + '\\b', 'g')
+    func = func.replace(regex, 'x');
+  } else {
+    // args are going to be f(x, a, b, c...) - x is independent variable, a, b... are parameters
+    var args = func.match(/^function\s*[^\(]*\(\s*([^\)]*)[\)]/m)[1];
+    args = args.split(',');
+    var ch = 'a';
+    for (var i = 0; i < args.length; i++) {
+      var regex = new RegExp('\\b' + args[i].trim() + '\\b', 'g');
+      if (i === 0) {
+        func = func.replace(regex, 'x');
+      } else {
+        func = func.replace(regex, ch);
+        ch = String.fromCharCode(ch.charCodeAt(0) + 1);
+      }
+    }
+  }
   func = func.match(/return\s*([^\;}]*)[\;}]/m)[1];
-  // func = func.replace(/Math./g, '');
-  return func;
+  return {
+    func   : func, 
+    numArgs: args.length
+  }
 }
 
-var cleanFunc = function (func, newVarName){
+var cleanFunc = function (func, newVarName, multipleParams){
+  var numArgs;
   if (typeof func === 'function') {
-    func = extractFunc(func);
+    f = extractFunc(func, multipleParams);
+    func = f.func;
+    numArgs = f.numArgs;
   } else if (typeof func === 'string') {
-    if (newVarName && typeof newVarName === 'string') {
+    if (newVarName && typeof newVarName === 'string' && !multipleParams) {
       var regex = new RegExp('\\b' + newVarName + '\\b', 'g');
       func = func.replace(regex, 'x');
+    } else if (newVarName && typeof newVarName === 'object' && multipleParams) {
+      numArgs = newVarName.length;
+      var ch = 'a';
+      for (var i = 0; i < newVarName.length; i++) {
+        var regex = new RegExp('\\b' + newVarName[i] + '\\b', 'g');
+        if (i === 0) {
+          func = func.replace(regex, 'x');
+        } else {
+          func = func.replace(regex, ch);
+          ch = String.fromCharCode(ch.charCodeAt(0) + 1);
+        }
+      }
     }
   } else {
     throw 'function to be optimized needs to be a function or a string expression';
@@ -50,7 +83,10 @@ var cleanFunc = function (func, newVarName){
   func = func.replace(/SQRT2/gi, 'sqrt(2)');
   func = func.toLowerCase();
 
-  return func;
+  return {
+    func   : func,
+    numArgs: numArgs
+  };
 }
 
 module.exports = {
@@ -65,7 +101,7 @@ module.exports = {
     options = options || {};
 
     // clean provided function to be accepted by sympy lambdify function
-    func = cleanFunc(func, options.variable);
+    func = cleanFunc(func, options.variable, false).func;
 
     // provide sensible defaults for the options object
     if (operation === 'local') {
@@ -86,6 +122,29 @@ module.exports = {
     } else if (operation === 'global') {
       extendNoOverwrite(options, globalDefaults);
     }
+
+    return {
+      func:     func,
+      options:  options,
+      callback: callback
+    }
+  },
+
+  cleanFit: function(func, options, callback, xData, yData) {
+    if (typeof options === 'function') {
+      callback = options;
+      options = undefined;
+    }
+    // provide default callback function (console.log)
+    callback = this.cleanCB(callback);
+
+    options = options || {};
+    options.xData = xData;
+    options.yData = yData;
+
+    f = cleanFunc(func, options.variables, true);
+    options.numArgs = f.numArgs;
+    func = f.func;
 
     return {
       func:     func,
