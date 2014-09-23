@@ -153,6 +153,27 @@ module.exports = {
     }
   },
 
+  cleanRoot: function(func, options, callback, lower, upper) {
+    if (typeof options === 'function') {
+      callback = options;
+      options = undefined;
+    }
+    callback = this.cleanCB(callback);
+
+    options = options || {};
+    options.lower = lower;
+    options.upper = upper;
+    options.method = options.method || 'brentq'
+
+    func = cleanFunc(func, options.variable, false).func;
+
+    return {
+      func:     func,
+      options:  options,
+      callback: callback
+    }
+  },
+
   cleanCB: function(callback) {
     return callback || function (results){
       console.log(results);
