@@ -39,6 +39,18 @@ def global_minimize(func, options):
     except Exception as e:
         return str(e)
 
+def curve_fit(func, options):
+    xdata = options['xData']
+    ydata = options['yData']
+    try:
+        (popt, pcov) = o.curve_fit(f=func, xdata=xdata, ydata=ydata)
+        return {
+            'paramValues'     : popt.tolist(),
+            'paramCovariance' : pcov.tolist()
+        }
+    except Exception as e:
+        return str(e)
+
 def nnls(A, b):
     try:
         solution, residual = o.nnls(np.array(A), np.array(b))
