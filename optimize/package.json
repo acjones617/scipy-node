@@ -1,6 +1,6 @@
 {
   "name": "scipy-optimize",
-  "version": "0.3.0",
+  "version": "0.4.2",
   "description": "Node wrapper around optimize module of scipy python library",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/acjones617/scipy-node/optimize"
+    "url": "https://github.com/acjones617/scipy-node/tree/master/optimize"
   },
   "keywords": [
     "scipy",
@@ -24,7 +24,7 @@
     "url": "http://fibo.mit-license.org/"
   } ],
   "bugs": {
-    "url": "https://github.com/acjones617/k-means/issues"
+    "url": "https://github.com/acjones617/scipy-node/issues"
   },
-  "homepage": "https://github.com/acjones617/k-means"
+  "homepage": "https://github.com/acjones617/scipy-node/tree/master/optimize"
 }
