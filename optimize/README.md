@@ -10,6 +10,7 @@
 [Find the Root of a Function](https://github.com/acjones617/scipy-node/tree/master/optimize#root)  
 [Find the best-fit curve given data](https://github.com/acjones617/scipy-node/tree/master/optimize#fit)  
 [Least Squares](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)  
+[Calculate Partial Derivative Values at a Point](https://github.com/acjones617/scipy-node/tree/master/optimize#derive)  
 
 ## <a name='about' href='#about'/>  What is scipy's optimize package?
 
@@ -38,10 +39,15 @@ Then, require scipy-optimize in your js file. I'm going to use the variable 'opt
 opt is an object with many of the SciPy Optimization methods (and the rest to hopefully soon follow). Currently, the methods on opt are:
 
 <b>
-[opt.localMinimize(func[, options[, callback]]) and opt.globalMinimize(func[, options[, callback]])](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
-[opt.findRoot(func, lower, upper[, options[, callback]])](https://github.com/acjones617/scipy-node/tree/master/optimize#root)
-[opt.fitCurve.linear(xData, yData[, callback]), opt.fitCurve.quadratic(xData, yData[, callback]), and opt.fitCurve(func, xData, yData[, options[, callback]])](https://github.com/acjones617/scipy-node/tree/master/optimize#fit)
-[opt.nonNegLeastSquares(A, b[, callback])](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)
+[opt.localMinimize(func, options, callback) and opt.globalMinimize(func, options, callback)](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
+
+[opt.findRoot(func, lower, upper, options, callback)](https://github.com/acjones617/scipy-node/tree/master/optimize#root)  
+
+[opt.fitCurve.linear(xData, yData, callback), opt.fitCurve.quadratic(xData, yData, callback), and opt.fitCurve(func, xData, yData, options, callback)](https://github.com/acjones617/scipy-node/tree/master/optimize#fit)  
+
+[opt.minimizeEuclideanNorm(A, b, callback)](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)
+
+[opt.calcDerivatives(func, point, options, callback)](https://github.com/acjones617/scipy-node/tree/master/optimize#derive)
 </b>
 
 Many of these require the user to pass in a "func" argument to optimize. Func requires a very specific format:
@@ -99,7 +105,24 @@ For example, you could write func without the Math. object entirely, like below:
 
 ## <a name='min' href='#min'/> Find Minimum Value of a Univariate Mathematical Expression
 
-Two functions are available: opt.localMinimize(func[, options[, callback]]) and opt.globalMinimize(func[, options[, callback]]), in case your expression may have many local minima and you want to ensure that you're finding the global minimum.
+Two functions are available: opt.localMinimize(func[, options[, callback]]) and opt.globalMinimize(func[, options[, callback]]), in case your expression may have many local minima and you want to ensure that you're finding the global minimum. Example:
+
+    opt.localMinimize(function(x) {
+      return Math.pow(x-4, 4) - Math.pow(x, 3) + 10 * x - 1;
+    }, {
+      bounds: [-10, 10]
+    }, function(results) {
+      console.log(results);
+    });
+    
+    results = {
+      status  : 0, 
+      nfev    : 15, 
+      success : true, 
+      fun     : -198.63648235818988, 
+      x       : 7.3684735542053241, 
+      message : "Solution found."
+    }
 
 Both opt.localMinimize and opt.globalMinimize take up to three arguments: 
 
@@ -144,7 +167,17 @@ For the opt.globalMinimization function, if you specified "true" for includeAllM
 
 ## <a name='root' href='#root'/> Find the Root of a Function (such that f(x) = 0)
 
-Using opt.findRoot, you have access to four different methods of finding the root of a function within a given interval, such that f(x) = 0.
+Using opt.findRoot, you have access to four different methods of finding the root of a function within a given interval, such that f(x) = 0. Example:
+
+    opt.findRoot(function(x) {
+      return Math.pow(x-4, 4) - Math.pow(x, 3) + 10 * x - 1;
+    }, 0, 4, {
+      method: 'brentq'
+    }, function(results) {
+      console.log(results);
+    });
+    
+    results = 3.1394513707104594;
 
 opt.findRoot(func, lower, upper [, options [, callback]]) takes up to five arguments:
 
@@ -184,7 +217,29 @@ The passed-in results is a value of x found such that f(x) = 0.
 
 opt.fitCurve uses non-linear least squares to fit a function, f, to given data. 
 
-There are two shortcut methods on the opt.fitCurve object that can be used: linear and quadratic, that just require the yData and xData.
+There are two shortcut methods on the opt.fitCurve object that can be used: linear and quadratic, that just require the yData and xData. Example:
+
+    opt.fitCurve.linear([1, 2, 3, 4], [10, 3, 0, 2], function(results) {
+      console.log(results);
+    })
+
+    results = {
+      paramValues: [-2.7, 10.5],
+      paramCovariance: [[2.0   , -5.075], 
+                        [-5.075, 15.225]]
+    }
+    // i.e. the best fit line is y = -2.7x + 10.5
+
+    opt.fitCurve.quadratic([1, 2, 3, 4], [10, 3, 0, 2], function(results) {
+      console.log(results);
+    })
+    results = {
+      paramValues: [2.25, -13.95, 21.75],
+      paramCovariance: [[0.0125 , -0.00625, 0.0625], 
+                        [-0.0625, 0.3225 , -0.3375], 
+                        [0.0625 , -0.4475, 0.3875]]
+    }
+    // i.e. the best fit curve is y = 2.25x^2 - 13.95x + 21.75
 
 #### opt.fitCurve.linear(xData, yData[, callback]) and opt.fitCurve.quadratic(xData, yData[, callback]):
 
@@ -230,7 +285,20 @@ The results object for opt.fitCurve.quadratic(xData, yData), on the same xData a
 
 Where a = 0.5, b = -1.1 and c = 4.0
 
-You can also provide any custom univariate function to fit the curve to via opt.fitCurve
+You can also provide any custom univariate function to fit the curve to via opt.fitCurve. Example:
+
+    opt.fitCurve(function(x, a, b) {
+      return a * x + b;
+    }, [1, 2, 3, 4], [10, 3, 0, 2], function(results) {
+      console.log(results);
+    })
+
+    results = {
+      paramValues: [-2.7, 10.5],
+      paramCovariance: [[2.0   , -5.075], 
+                        [-5.075, 15.225]]
+    }
+    // i.e. the best fit line is y = -2.7x + 10.5
 
 #### opt.fitCurve(func, xData, yData[, options[, callback) takes two more arguments in addition to what opt.fitCurve.linear and opt.fitCurve.quadratic took:
 
@@ -244,11 +312,24 @@ In our results object, the order of the parameters will be the same as the order
 
 The only option our options object takes is a variables array, in the case that our provided func is a string. Remember to pass in variable names as strings to the array.
 
-## <a name='nnls' href='#nnls'/> nonNegLeastSquares
+## <a name='nnls' href='#nnls'/> minimizeEuclideanNorm
 
-Minimize the Euclidean norm of Ax - b for x >= 0 where A is a matrix, and b is a vector
+Minimize the Euclidean norm of Ax - b for x >= 0 (non-negative) where A is a matrix, and b is a vector. For example:
 
-opt.nonNegLeastSquares(A, b) takes three arguments:
+    opt.minimizeEuclideanNorm(
+    [[1 , 2 , -3],
+     [-4, 5 ,  6],
+     [7 , -8, -9]],
+    [5, 3, -1], function(results) {
+      console.log(results);
+    });
+
+    results = {
+      solution: [4.75, 2.5, 1.583333], 
+      residual: 0.0
+    }
+
+opt.minimizeEuclideanNorm(A, b, callback) takes three arguments:
 
 #### A:
 
@@ -283,3 +364,56 @@ The passed-in results object contains two important pieces of data: solution and
 solution is an n-length solution vector equal to x that minimizes the Euclidean norm of Ax - b (for x >= 0), where n is the number of columns of A, or A[0].length.
 
 residual is the minimum value found for the Euclidean norm of Ax - b, with x = solution.
+
+
+## <a name='derive' href='#derive'/> Calculate Partial Derivate Values at a Point
+
+Using opt.calcDerivatives, you can find the partial derivative values at any point, x = [a, b, c...], for f(x). Example:
+
+    opt.calcDerivatives(function(x) {
+      return Math.pow(x[0],2) * x[1] * 2 - Math.exp(x[0]) * Math.log(x[1]);
+    }, [1, 1]);
+
+    results = [ 4.002, -0.717];
+
+The above is equivalent to calculating the partial derivative values of df/dx and df/dy for x = 1 and y = 1, where f(x, y) = x^2 * y * 2 - e^x * log(y)
+
+opt.calcDerivatives(func, point[, options[, callback]]) takes up to four arguments:
+
+#### func (required):
+
+See above for details on how to [format func](https://github.com/acjones617/scipy-node/tree/master/optimize#func)
+
+An additional note is that the argument func takes must be an array. Even if you were trying to calculate the derivates of a univariate function, say, f(x) = x^3, the appropriate func to pass in would be either:
+
+    func = function(x) {
+      return Math.pow(x[0], 3);
+    }
+
+    or
+
+    func = 'x[0]**3'
+
+Notice that to access the value of our univariate function, we must still access the 0th element of the expected array argument, x.
+
+#### point (required):
+
+The values of the multivariate function at which we are trying to calculate the derivative for.
+
+#### options (optional):
+
+Our options object can take a single property: epsilon. Forward finite-difference approximation is used to approximate the gradient of the scalar function. Epsilon is the increment to x used to determine the function gradient. This can be either a scalar, in which case the same epsilon will be applied to all variables, or an array of length equal to the number of variables. The default value for epsilon is 0.001. Small values are recommended for increased accuracy. Epsilon must be nonzero.
+
+    options = {
+      epsilon: [0.0001, 0.01]
+    }
+
+#### callback (optional)
+
+The results of the minimization will be passed to a provided callback function. The default is:
+
+    var callback = function (results){
+      console.log(results)
+    }
+
+The passed-in results object is an array with the partial derivative values.
