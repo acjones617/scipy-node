@@ -1,10 +1,10 @@
 {
   "name": "scipy-optimize",
-  "version": "0.4.2",
+  "version": "1.0.0",
   "description": "Node wrapper around optimize module of scipy python library",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -18,13 +18,22 @@
     "scalar",
     "math"
   ],
-  "author": "Andrew Jones",
-  "license": [ {
-    "type": "MIT",
-    "url": "http://fibo.mit-license.org/"
-  } ],
+  "author": {
+    "name": "Andrew Jones",
+    "email": "acjones617@gmail.com",
+    "url": "http://andrewjones.us"
+  },
+  "license": [
+    {
+      "type": "MIT",
+      "url": "http://fibo.mit-license.org/"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/acjones617/scipy-node/issues"
   },
-  "homepage": "https://github.com/acjones617/scipy-node/tree/master/optimize"
+  "homepage": "https://github.com/acjones617/scipy-node/tree/master/optimize",
+  "devDependencies": {
+    "should": "^4.0.4"
+  }
 }
