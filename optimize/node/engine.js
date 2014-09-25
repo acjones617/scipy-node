@@ -11,9 +11,8 @@ Engine.runPython = function(operation, a, b, cb, x, y) {
   if (operation === 'local' || operation === 'global') {
     var cleanup = clean.cleanMin(operation, a, b, cb);
     a   = cleanup.func;
-    b   = cleanup.options;
+    b = JSON.stringify(cleanup.options);
     cb  = cleanup.callback;
-    b = JSON.stringify(b);
   } else if (operation === 'nnls') {
     cb = clean.cleanCB(cb);
     a = JSON.stringify(a);
@@ -21,15 +20,23 @@ Engine.runPython = function(operation, a, b, cb, x, y) {
   } else if (operation === 'fit') {
     var cleanup = clean.cleanFit(a, b, cb, x, y);
     a = cleanup.func;
-    b = cleanup.options;
+    b = JSON.stringify(cleanup.options);
     cb = cleanup.callback;
-    b = JSON.stringify(b);
   } else if (operation === 'root') {
     var cleanup = clean.cleanRoot(a, b, cb, x, y);
     a = cleanup.func;
-    b = cleanup.options;
+    b = JSON.stringify(cleanup.options);
     cb = cleanup.callback;
-    b = JSON.stringify(b);
+  } else if (operation === 'vectorRoot') {
+    var cleanup = clean.cleanVector(a, b, cb, x);
+    a = cleanup.func;
+    b = JSON.stringify(cleanup.options);
+    cb = cleanup.callback;
+  } else if (operation === 'derivative') {
+    var cleanup = clean.cleanDerivative(a, b, cb, x);
+    a = cleanup.func;
+    b = JSON.stringify(cleanup.options);
+    cb = cleanup.callback;
   }
 
   // immediately invoked function in case user invokes runPython multiple times,
@@ -44,8 +51,11 @@ Engine.runPython = function(operation, a, b, cb, x, y) {
       outputs[num] += data;
     });
     pythons[num].stdout.on('close', function(){
-      cb(outputs[num]);
-      // cb(JSON.parse(outputs[num]));
+      try {
+        cb(JSON.parse(outputs[num]));
+      } catch (e) {
+        cb(outputs[num]);
+      }
     });
   })(pythonNum++)
 }
