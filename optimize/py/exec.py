@@ -14,7 +14,7 @@ parser.add_argument('b')
 args   = parser.parse_args()
 operation = args.operation
 
-if operation in ['local', 'global', 'fit', 'root']:
+if operation in ['local', 'global', 'fit', 'root', 'vectorRoot', 'derivative']:
     func      = args.a
     options   = json.JSONDecoder().decode(args.b)
     if operation == 'local':
@@ -23,6 +23,10 @@ if operation in ['local', 'global', 'fit', 'root']:
         results = m.global_minimize(lambdify('x', func), options)
     elif operation == 'root':
         results = m.find_root(lambdify('x', func), options)
+    elif operation == 'vectorRoot':
+        results = m.find_vector_root(lambdify('x', func), options)
+    elif operation == 'derivative':
+        results = m.calc_derivative_values(lambdify('x', func), options)
     elif operation == 'fit':
         num_args = options['numArgs']
         args = ['x']
@@ -30,7 +34,8 @@ if operation in ['local', 'global', 'fit', 'root']:
         for i in range(0, num_args - 1):
             args.append(ch)
             ch = chr(ord(ch) + 1)
-        results = m.curve_fit(lambdify(tuple(args), func), options)
+        # using modules='numpy' argument necessary becuase of implementation - uses np.arrays
+        results = m.curve_fit(lambdify(tuple(args), func, modules='numpy'), options)
 elif operation == 'nnls':
     A = json.JSONDecoder().decode(args.a)
     b = json.JSONDecoder().decode(args.b)
@@ -40,3 +45,4 @@ try:
     print json.JSONEncoder().encode(results)
 except Exception as e:
     print e
+    print results

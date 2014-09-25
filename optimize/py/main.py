@@ -56,7 +56,28 @@ def find_root(func, options):
         method = 'brentq'
 
     try:
-        return getattr(o,method)(func, a=lower, b=upper)
+        return getattr(o, method)(func, a=lower, b=upper)
+    except Exception as e:
+        return str(e)
+
+def find_vector_root(func, options):
+    guess = options['guess']
+
+    try:
+        answer = o.root(func, x0=guess)
+        for attr in answer:
+            if (type(answer[attr]).__module__ == 'numpy'):
+                answer[attr] = answer[attr].tolist()
+        return answer
+    except Exception as e:
+        return str(e)
+
+def calc_derivative_values(func, options):
+    point   = options['point']
+    epsilon = options['epsilon']
+
+    try:
+        return o.approx_fprime(point, func, epsilon).tolist()
     except Exception as e:
         return str(e)
 
