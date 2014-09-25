@@ -7,7 +7,7 @@ var index = module.exports = {
   globalMinimize: function(func, options, callback) {
     eng.runPython('global', func, options, callback);
   },  
-  nonNegLeastSquares: function(A, b, callback) {
+  minimizeEuclideanNorm: function(A, b, callback) {
     eng.runPython('nnls', A, b, callback);
   },
   fitCurve: function(func, xData, yData, options, callback) {
@@ -15,6 +15,12 @@ var index = module.exports = {
   },
   findRoot: function(func, lower, upper, options, callback) {
     eng.runPython('root', func, options, callback, lower, upper);
+  },
+  findVectorRoot: function(func, guess, options, callback) {
+    eng.runPython('vectorRoot', func, options, callback, guess);
+  },
+  calcDerivatives: function(func, point, options, callback) {
+    eng.runPython('derivative', func, options, callback, point);
   }
 };
 
