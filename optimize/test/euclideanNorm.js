@@ -9,15 +9,10 @@ describe('euclidean norm', function(){
   var b = [5, 3, -1];
 
   before(function (done){
-    opt.minimizeEuclideanNorm(A, b, function(results) {
+    opt.minimizeEuclideanNorm(A, b, function (results){
       result = results;
       done();
     });
-
-    results = {
-      solution: [4.75, 2.5, 1.583333], 
-      residual: 0.0
-    }
   });
 
   it('correctly finds non-negative x to minimize the Eucliean Norm of the function', function() {

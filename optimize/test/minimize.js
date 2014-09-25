@@ -1,5 +1,3 @@
-// var e = require('./engine.js');
-
 var opt = require('../index');
 var should = require('should');
 
