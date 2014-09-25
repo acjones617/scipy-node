@@ -15,19 +15,20 @@ var extendNoOverwrite = function (obj, defaults){
   }
 }
 
-var extractFunc = function (func, multipleParams) {
+var extractFuncFromFunction = function (func, multipleParams) {
   // if function given is a function,
   // extract the argument name, extract the return value,
   // replace the argument name with 'x'
   // return the return value as a string, with x as the independent variable
   func = func.toString();
+  var args;
   if (!multipleParams) {
     var arg = func.match(/^function\s*[^\(]*\(\s*([^\)\,]*)[\,\)]/m)[1];
     var regex = new RegExp('\\b' + arg.trim() + '\\b', 'g')
     func = func.replace(regex, 'x');
   } else {
     // args are going to be f(x, a, b, c...) - x is independent variable, a, b... are parameters
-    var args = func.match(/^function\s*[^\(]*\(\s*([^\)]*)[\)]/m)[1];
+    args = func.match(/^function\s*[^\(]*\(\s*([^\)]*)[\)]/m)[1];
     args = args.split(',');
     var ch = 'a';
     for (var i = 0; i < args.length; i++) {
@@ -41,38 +42,51 @@ var extractFunc = function (func, multipleParams) {
     }
   }
   func = func.match(/return\s*([^\;}]*)[\;}]/m)[1];
+  args = args || {};
   return {
     func   : func, 
     numArgs: args.length
   }
+};
+
+var extractFuncFromString = function (func, newVarName, multipleParams) {
+  if (newVarName && typeof newVarName === 'string' && !multipleParams) {
+    var regex = new RegExp('\\b' + newVarName + '\\b', 'g');
+    func = func.replace(regex, 'x');
+    return {
+      func: func,
+      numArgs: 1
+    };
+  } else if (newVarName && typeof newVarName === 'object' && multipleParams) {
+    numArgs = newVarName.length;
+    var ch = 'a';
+    for (var i = 0; i < newVarName.length; i++) {
+      var regex = new RegExp('\\b' + newVarName[i] + '\\b', 'g');
+      if (i === 0) {
+        func = func.replace(regex, 'x');
+      } else {
+        func = func.replace(regex, ch);
+        ch = String.fromCharCode(ch.charCodeAt(0) + 1);
+      }
+    }
+    return {
+      func: func,
+      numArgs: numArgs
+    }
+  }
 }
 
 var cleanFunc = function (func, newVarName, multipleParams){
-  var numArgs;
+  var f;
   if (typeof func === 'function') {
-    f = extractFunc(func, multipleParams);
-    func = f.func;
-    numArgs = f.numArgs;
+    f = extractFuncFromFunction(func, multipleParams);
   } else if (typeof func === 'string') {
-    if (newVarName && typeof newVarName === 'string' && !multipleParams) {
-      var regex = new RegExp('\\b' + newVarName + '\\b', 'g');
-      func = func.replace(regex, 'x');
-    } else if (newVarName && typeof newVarName === 'object' && multipleParams) {
-      numArgs = newVarName.length;
-      var ch = 'a';
-      for (var i = 0; i < newVarName.length; i++) {
-        var regex = new RegExp('\\b' + newVarName[i] + '\\b', 'g');
-        if (i === 0) {
-          func = func.replace(regex, 'x');
-        } else {
-          func = func.replace(regex, ch);
-          ch = String.fromCharCode(ch.charCodeAt(0) + 1);
-        }
-      }
-    }
+    f = extractFuncFromString(func, newVarName, multipleParams);
   } else {
     throw 'function to be optimized needs to be a function or a string expression';
   }
+  func = f.func;
+  var numArgs = f.numArgs;
 
   func = func.replace(/Math./gi,'');
   func = func.replace(/LN2/gi, 'ln(2)');
@@ -89,20 +103,30 @@ var cleanFunc = function (func, newVarName, multipleParams){
   };
 }
 
-module.exports = {
-  cleanMin: function (operation, func, options, callback) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    // provide default callback function (console.log)
-    callback = this.cleanCB(callback);
+var optionalArgs = function (options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = undefined;
+  }
+  // provide default callback function (console.log)
+  callback = cleanInputs.cleanCB(callback);
 
-    options = options || {};
+  options = options || {};
+
+  return {
+    callback: callback,
+    options: options
+  };
+};
+
+var cleanInputs = module.exports = {
+  cleanMin: function (operation, func, options, callback) {
+    var optional = optionalArgs(options, callback);
+    options  = optional.options;
+    callback = optional.callback;
 
     // clean provided function to be accepted by sympy lambdify function
     func = cleanFunc(func, options.variable, false).func;
-
     // provide sensible defaults for the options object
     if (operation === 'local') {
       options = {
@@ -131,14 +155,10 @@ module.exports = {
   },
 
   cleanFit: function(func, options, callback, xData, yData) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    // provide default callback function (console.log)
-    callback = this.cleanCB(callback);
+    var optional = optionalArgs(options, callback);
+    options  = optional.options;
+    callback = optional.callback;
 
-    options = options || {};
     options.xData = xData;
     options.yData = yData;
 
@@ -154,13 +174,10 @@ module.exports = {
   },
 
   cleanRoot: function(func, options, callback, lower, upper) {
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    callback = this.cleanCB(callback);
+    var optional = optionalArgs(options, callback);
+    options  = optional.options;
+    callback = optional.callback;
 
-    options = options || {};
     options.lower = lower;
     options.upper = upper;
     options.method = options.method || 'brentq'
@@ -174,7 +191,40 @@ module.exports = {
     }
   },
 
-  cleanCB: function(callback) {
+  cleanVector: function(func, options, callback, guess) {
+    var optional = optionalArgs(options, callback);
+    options  = optional.options;
+    callback = optional.callback;
+
+    options.guess = guess;
+
+    func = cleanFunc(func, options.variable, false).func;
+
+    return {
+      func:     func,
+      options:  options,
+      callback: callback
+    }
+  },
+
+  cleanDerivative: function(func, options, callback, point) {
+    var optional = optionalArgs(options, callback);
+    options  = optional.options;
+    callback = optional.callback;
+
+    options.point = point;
+    options.epsilon = options.epsilon || 0.000001;
+
+    func = cleanFunc(func, options.variable, false).func;
+
+    return {
+      func:     func,
+      options:  options,
+      callback: callback
+    }
+  },
+
+  cleanCB: function (callback){
     return callback || function (results){
       console.log(results);
     };
