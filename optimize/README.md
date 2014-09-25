@@ -5,6 +5,9 @@
 [What is scipy's optimize package?](https://github.com/acjones617/scipy-node/tree/master/optimize#about)  
 [Setup Process](https://github.com/acjones617/scipy-node/tree/master/optimize#setup)  
 [API](https://github.com/acjones617/scipy-node/tree/master/optimize#use)  
+
+------------------------------------------------------------------------------------------------------------
+
 [The appropriate format for the "func" argument](https://github.com/acjones617/scipy-node/tree/master/optimize#func)  
 [Find Minimum Value of a Mathematical Expression](https://github.com/acjones617/scipy-node/tree/master/optimize#min)  
 [Find the Root of a Function](https://github.com/acjones617/scipy-node/tree/master/optimize#root)  
@@ -12,9 +15,13 @@
 [Least Squares](https://github.com/acjones617/scipy-node/tree/master/optimize#nnls)  
 [Calculate Partial Derivative Values at a Point](https://github.com/acjones617/scipy-node/tree/master/optimize#derive)  
 
+------------------------------------------------------------------------------------------------------------
+
+[Testing](https://github.com/acjones617/scipy-node/tree/master/optimize#testing)  
+
 ## <a name='about' href='#about'/>  What is scipy's optimize package?
 
-Scipy is an extensively used, well-documented Python library for all your scientific needs. Optimize is a module of the library concerned with optimization of functions. This is a node wrapper for which you can use JavaScript to access the power of the optimize module. It exists on the npm registry under the name "scipy-optimize". The code can be seen at my <a href='https://github.com/acjones617/scipy-node/tree/master/optimize'>scipy/optimize</a> github repo. A demo application is forthcoming.
+Scipy is an extensively used, well-documented Python library for all your scientific needs. Optimize is a module of the library concerned with optimization of functions. This npm module is a node wrapper for which you can use JavaScript to access the power of the optimize module. It exists on the npm registry under the name "scipy-optimize". The code can be seen at my <a href='https://github.com/acjones617/scipy-node/tree/master/optimize'>scipy/optimize</a> github repo. A demo application is forthcoming.
     
     npm install scipy-optimize
 
@@ -402,10 +409,10 @@ The values of the multivariate function at which we are trying to calculate the 
 
 #### options (optional):
 
-Our options object can take a single property: epsilon. Forward finite-difference approximation is used to approximate the gradient of the scalar function. Epsilon is the increment to x used to determine the function gradient. This can be either a scalar, in which case the same epsilon will be applied to all variables, or an array of length equal to the number of variables. The default value for epsilon is 0.001. Small values are recommended for increased accuracy. Epsilon must be nonzero.
+Our options object can take a single property: epsilon. Forward finite-difference approximation is used to approximate the gradient of the scalar function. Epsilon is the increment to x used to determine the function gradient. This can be either a scalar, in which case the same epsilon will be applied to all variables, or an array of length equal to the number of variables. The default value for epsilon is 10^-6. Small values are recommended for increased accuracy. Epsilon must be nonzero.
 
     options = {
-      epsilon: [0.0001, 0.01]
+      epsilon: [0.000001, 0.001]
     }
 
 #### callback (optional)
@@ -417,3 +424,9 @@ The results of the minimization will be passed to a provided callback function. 
     }
 
 The passed-in results object is an array with the partial derivative values.
+
+
+## <a name='Testing' href='#testing'/> Testing
+
+I have written some simple tests in the test folder. If you clone the github repo and install the dev dependencies, you can run the test via "npm test". Please update the tests if you make substantial pull requests to other parts of the code.
+
