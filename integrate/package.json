@@ -1,0 +1,43 @@
+{
+  "name": "scipy-integrate",
+  "version": "0.1.0",
+  "description": "Node wrapper around integrate module of scipy python library",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acjones617/scipy-node/tree/master/integrate"
+  },
+  "keywords": [
+    "scipy",
+    "scipy-integrate",
+    "integrate",
+    "calculus",
+    "anti-derivative",
+    "math",
+    "scientific"
+  ],
+  "author": {
+    "name": "Andrew Jones",
+    "email": "acjones617@gmail.com",
+    "url": "http://andrewjones.us"
+  },
+  "license": [
+    {
+      "type": "MIT",
+      "url": "http://fibo.mit-license.org/"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/acjones617/scipy-node/issues"
+  },
+  "homepage": "https://github.com/acjones617/scipy-node/tree/master/integrate",
+  "devDependencies": {
+    "should": "^4.0.4"
+  }
+}
