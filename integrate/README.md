@@ -131,7 +131,7 @@ Here, you can customize how you want your minimization to run.
 
 Our options object looks for a single possible property:
 
-    var integrateions = {
+    var options = {
       variable: 'y' // can specify the variable name used in your func when you pass func in as a string. You must specify this variable name if you are using something other than "x"
     }
 
