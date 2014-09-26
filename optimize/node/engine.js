@@ -1,4 +1,3 @@
-var parse = require('./parse');
 var clean = require('./clean');
 
 module.exports = Engine = {};
