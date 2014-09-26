@@ -8,8 +8,6 @@ try:
 except:
     print 'Unable to find numpy library. Make sure you have downloaded numpy. See http://www.numpy.org/'
 
-import clean as c
-
 def local_minimize(func, options):
     bracket = options['bracket']
     bounds  = options['bounds']

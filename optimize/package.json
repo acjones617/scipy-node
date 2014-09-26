@@ -1,7 +1,7 @@
 {
   "name": "scipy-optimize",
   "version": "1.0.0",
-  "description": "Node wrapper around optimize module of scipy python library",
+  "description": "Node wrapper for optimize module of scipy python library",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
