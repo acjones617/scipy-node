@@ -25,7 +25,7 @@ var optionalArgs = function (options, callback) {
 };
 
 var cleanInputs = module.exports = {
-  cleanInt: function (func, options, callback, lower, upper){
+  cleanSingle: function (func, options, callback, lower, upper){
     var optional = optionalArgs(options, callback);
     options  = optional.options;
     callback = optional.callback;
@@ -35,8 +35,26 @@ var cleanInputs = module.exports = {
     options.upper = parse.parseNum(upper);
 
     return {
-      func: func,
-      options: options,
+      func    : func,
+      options : options,
+      callback: callback
+    };
+  },
+
+  cleanMulti: function (func, options, callback, range){
+    var optional = optionalArgs(options, callback);
+    options  = optional.options;
+    callback = optional.callback;
+    
+    f = parse.cleanFunc(func, options.variables, true);
+    options.numArgs = f.numArgs;
+    func = f.func;
+
+    options.range = parse.parseRange(range);
+
+    return {
+      func    : func,
+      options : options,
       callback: callback
     };
   },
