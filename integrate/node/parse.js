@@ -1,10 +1,18 @@
 var Parser = module.exports = {};
 
-Parser.parseNum = function (num) {
+Parser.parseNum = function (num){
   if (typeof num === 'number') {
     return num.toString();
   }
   throw 'Please insert a number for the lower and upper bounds';
+};
+
+Parser.parseRange = function (range){
+  return range.map(function (tup){
+    return tup.map(function (num) {
+      return Parser.parseNum(num);
+    });
+  });
 }
 
 

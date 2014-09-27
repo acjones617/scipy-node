@@ -6,9 +6,14 @@ var pythons = [];
 var outputs = [];
 var pythonNum = 0;
 
-Engine.runPython = function(operation, func, options, cb, lower, upper) {
+Engine.runPython = function (operation, func, options, cb, a, b){
   if (operation === 'single') {
-    var cleanup = clean.cleanInt(func, options, cb, lower, upper);
+    var cleanup = clean.cleanSingle(func, options, cb, a, b);
+    func    = cleanup.func;
+    options = JSON.stringify(cleanup.options);
+    cb      = cleanup.callback;
+  } else if (operation === 'multi') {
+    var cleanup = clean.cleanMulti(func, options, cb, a);
     func    = cleanup.func;
     options = JSON.stringify(cleanup.options);
     cb      = cleanup.callback;
@@ -22,10 +27,10 @@ Engine.runPython = function(operation, func, options, cb, lower, upper) {
       'python',
       [__dirname + '/../py/exec.py', operation, func, options]);
     outputs[num] = '';
-    pythons[num].stdout.on('data', function(data){
+    pythons[num].stdout.on('data', function (data){
       outputs[num] += data;
     });
-    pythons[num].stdout.on('close', function(){
+    pythons[num].stdout.on('close', function (){
       try {
         cb(JSON.parse(outputs[num]));
       } catch (e) {
