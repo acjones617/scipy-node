@@ -20,3 +20,11 @@ def integrate(func, options):
     except Exception as e:
         return str(e)
 
+def multi_integrate(func, options):
+    r = c.parse_range(options['range'])
+
+    try:
+        result = i.nquad(func, r)
+        return c.clean_integrate(result)
+    except Exception as e:
+        return str(e)
