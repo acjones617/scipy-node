@@ -13,5 +13,12 @@ def parse_num(num):
     if num == 'Infinity':
         return inf
     if num == '-Infinity':
-        return inf
+        return -inf
     return float(num)
+
+def parse_range(r):
+    result = []
+    for tup in  r:
+        result.append([parse_num(num) for num in tup])
+
+    return result
