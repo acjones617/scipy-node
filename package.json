@@ -1,0 +1,30 @@
+{
+  "name": "scipy",
+  "version": "0.1.0",
+  "description": "Node wrapper for Python's SciPy library",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acjones617/scipy-node.git"
+  },
+  "keywords": [
+    "scipy",
+    "math",
+    "science",
+    "integrate",
+    "optimize",
+    "derivative",
+    "minimize",
+    "root",
+    "functions"
+  ],
+  "author": "Andrew Jones",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/acjones617/scipy-node/issues"
+  },
+  "homepage": "https://github.com/acjones617/scipy-node"
+}
