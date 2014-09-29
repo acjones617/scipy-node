@@ -127,7 +127,7 @@ var cleanInputs = module.exports = {
     callback = optional.callback;
 
     options.point = point;
-    options.epsilon = options.epsilon || 0.000001;
+    options.epsilon = options.epsilon || Math.pow(10, -9);
 
     func = parse.cleanFunc(func, options.variable, false).func;
     return {

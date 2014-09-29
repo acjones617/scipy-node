@@ -3,8 +3,7 @@ var should = require('should');
 
 describe('calcDerivatives', function(){
   var f = function(a) {
-    return Math.pow(a[0], 4) * Math.exp(2 * a[1] - 5) - 2 * a[0] * Math.pow(a[1], 2) * Math.log(x[2] * 2) - 4;
-    // return Math.pow(a, 4) + Math.pow(a, 3) - 13 * Math.pow(x, 2) - x + 12;
+    return Math.pow(a[0], 4) * Math.exp(2 * a[1] - 5) - 2 * a[0] * Math.pow(a[1], 2) * Math.log(a[2] * 2) - 4;
   };
 
   var g = 'y[0]**4 * Math.exp(2 * y[1] - 5) - 2 * y[0] * Math.pow(y[1], 2) * Math.log(y[2] * 2) - 4';

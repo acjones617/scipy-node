@@ -391,7 +391,7 @@ opt.calcDerivatives(func, point[, options[, callback]]) takes up to four argumen
 
 See above for details on how to [format func](https://github.com/acjones617/scipy-node/tree/master/optimize#func)
 
-An additional note is that the argument func takes must be an array. Even if you were trying to calculate the derivates of a univariate function, say, f(x) = x^3, the appropriate func to pass in would be either:
+An additional note is that the argument that func takes must be an array. Even if you were trying to calculate the derivates of a univariate function, say, f(x) = x^3, the appropriate func to pass in would be either:
 
     func = function(x) {
       return Math.pow(x[0], 3);
@@ -405,11 +405,11 @@ Notice that to access the value of our univariate function, we must still access
 
 #### point (required):
 
-The values of the multivariate function at which we are trying to calculate the derivative for.
+The values of the multivariate function at which we are trying to calculate the derivative for. The function expects an array of values. Even if we are calculating a univariate function, we need to pass in an array with length 1.
 
 #### options (optional):
 
-Our options object can take a single property: epsilon. Forward finite-difference approximation is used to approximate the gradient of the scalar function. Epsilon is the increment to x used to determine the function gradient. This can be either a scalar, in which case the same epsilon will be applied to all variables, or an array of length equal to the number of variables. The default value for epsilon is 10^-6. Small values are recommended for increased accuracy. Epsilon must be nonzero.
+Our options object can take two properties: epsilon and the variable name if func is a string. Forward finite-difference approximation is used to approximate the gradient of the scalar function. Epsilon is the increment to x used to determine the function gradient. This can be either a scalar, in which case the same epsilon will be applied to all variables, or an array of length equal to the number of variables. The default value for epsilon is 10^-6. Small values are recommended for increased accuracy. Epsilon must be nonzero.
 
     options = {
       epsilon: [0.000001, 0.001]
