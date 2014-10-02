@@ -1,5 +1,5 @@
-scipy-node
-==========
+scipy
+------------------------------------------------------------------------------------------------------------
 
 Node wrapper for Python's SciPy library
 
@@ -11,6 +11,14 @@ Or, if you'd rather download the modules contained within piece-meal style:
 
     npm install scipy-optimize
     npm install scipy-integrate
+
+Click below for more information on the respective scipy-optimize and scipy-integrate npm modules:
+
+[scipy-optimize](https://www.npmjs.org/package/scipy-optimize) 
+
+[scipy-integrate](https://www.npmjs.org/package/scipy-integrate)
+
+------------------------------------------------------------------------------------------------------------
 
 After downloading scipy, require scipy in your js file. I'm going to use the variable 'scipy' to represent the module:
 
