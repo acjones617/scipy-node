@@ -2,10 +2,6 @@ var clean = require('./clean');
 
 module.exports = Engine = {};
 
-var pythons = [];
-var outputs = [];
-var pythonNum = 0;
-
 Engine.runPython = function(operation, a, b, cb, x, y) {
   if (operation === 'local' || operation === 'global') {
     var cleanup = clean.cleanMin(operation, a, b, cb);
@@ -38,23 +34,20 @@ Engine.runPython = function(operation, a, b, cb, x, y) {
     cb = cleanup.callback;
   }
 
-  // immediately invoked function in case user invokes runPython multiple times,
-  // starting multiple child processes, causing race condition, 
-  // causing stdouts to potentially overlap (otherwise).
-  (function (num){
-    pythons[num] = require('child_process').spawn(
-      'python',
-      [__dirname + '/../py/exec.py', operation, a, b]);
-    outputs[num] = '';
-    pythons[num].stdout.on('data', function(data){
-      outputs[num] += data;
-    });
-    pythons[num].stdout.on('close', function(){
-      try {
-        cb(JSON.parse(outputs[num]));
-      } catch (e) {
-        cb(outputs[num]);
-      }
-    });
-  })(pythonNum++)
+  // don't need to worry about race conditions with async process below
+  // since each is wrapped in their own "runPython" closure
+  var python = require('child_process').spawn(
+  'python',
+  [__dirname + '/../py/exec.py', operation, a, b]);
+  var output = '';
+  python.stdout.on('data', function (data){
+    output += data;
+  });
+  python.stdout.on('close', function (){
+    try {
+      cb(JSON.parse(output));
+    } catch (e) {
+      cb(output);
+    }
+  });
 }
